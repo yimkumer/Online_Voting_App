@@ -62,7 +62,7 @@ class _LoginPageState extends State<Login> {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/vote.jpg"),
+                image: AssetImage("assets/vote_bg.jpeg"),
                 fit: BoxFit.cover,
               ),
             ),
