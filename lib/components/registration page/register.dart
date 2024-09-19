@@ -250,7 +250,7 @@ class _RegisterState extends State<Register> {
                       );
                     },
                     child: const Text(
-                      'Already Registered? Go to Login Page',
+                      'Go to Login Page',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

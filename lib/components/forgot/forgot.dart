@@ -117,7 +117,7 @@ class _ForgotState extends State<Forgot> {
                         );
                       },
                       child: const Text(
-                        'Password Reset? Go to Login Page',
+                        'Go to Login Page',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

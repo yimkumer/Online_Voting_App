@@ -1,10 +1,8 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:online_voting_app/components/admin%20page/admin.dart';
 import 'package:online_voting_app/components/forgot/forgot.dart';
 import 'package:online_voting_app/components/registration%20page/register.dart';
-import 'package:online_voting_app/components/voter%20page/voter.dart';
+import 'package:online_voting_app/components/voter%20page/voter_walkthrough.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -31,7 +29,7 @@ class _LoginPageState extends State<Login> {
       );
     } else if (username == 'voter' && password == 'pass') {
       Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => const Voter()),
+        MaterialPageRoute(builder: (context) => VoterWalkthrough()),
       );
     } else if (username == 'admin' && password == 'pass') {
       Navigator.of(context).push(
