@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:online_voting_app/components/admin%20page/admin.dart';
 import 'package:online_voting_app/components/forgot/forgot.dart';
 import 'package:online_voting_app/components/registration%20page/register.dart';
@@ -15,40 +16,84 @@ class _LoginPageState extends State<Login> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
 
-  void _login() {
-    final username = _usernameController.text;
+  Future<void> _checkEmailAndNavigate() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
     if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please fill up both fields'),
-          duration: Durations.long1,
+          duration: Duration(seconds: 2),
         ),
       );
-    } else if (username == 'voter' && password == 'pass') {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => VoterWalkthrough()),
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    try {
+      // Send password reset email to check if email exists
+      // This is a workaround since Firebase doesn't provide a direct way to check email existence
+      await FirebaseAuth.instance
+          .sendPasswordResetEmail(
+        email: username,
+      )
+          .then((_) {
+        // If we reach here, the email exists
+        if (username == 'admin@gmail.com') {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const Admin()),
+          );
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => VoterWalkthrough()),
+          );
+        }
+      });
+    } on FirebaseAuthException catch (e) {
+      String message;
+      if (e.code == 'user-not-found') {
+        message = 'No user found for that email.';
+      } else if (e.code == 'invalid-email') {
+        message = 'The email address is badly formatted.';
+      } else {
+        message = 'An error occurred. Please try again.';
+      }
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 2),
+        ),
       );
-    } else if (username == 'admin' && password == 'pass') {
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => const Admin()),
-      );
-    } else {
+    } catch (e) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Incorrect ID or Password'),
-          duration: Durations.long1,
+          content: Text('An unexpected error occurred. Please try again.'),
+          duration: Duration(seconds: 2),
         ),
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
-  }
-
-  void _togglePasswordVisibility() {
-    setState(() {
-      _isPasswordVisible = !_isPasswordVisible;
-    });
   }
 
   @override
@@ -108,7 +153,7 @@ class _LoginPageState extends State<Login> {
                         isPassword: true),
                     const SizedBox(height: 30),
                     ElevatedButton(
-                      onPressed: _login,
+                      onPressed: _checkEmailAndNavigate,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xff457B9D),
                         padding: const EdgeInsets.symmetric(
@@ -117,10 +162,20 @@ class _LoginPageState extends State<Login> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
-                        'LOGIN',
-                        style: TextStyle(color: Colors.white, fontSize: 22),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              'LOGIN',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 22),
+                            ),
                     ),
                     const SizedBox(height: 10),
                     TextButton(
@@ -205,6 +260,12 @@ class _LoginPageState extends State<Login> {
         ),
       ),
     );
+  }
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordVisible = !_isPasswordVisible;
+    });
   }
 }
 

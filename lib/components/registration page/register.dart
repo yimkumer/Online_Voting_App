@@ -3,6 +3,8 @@ import 'package:lottie/lottie.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import '../login page/login.dart';
 
 class Register extends StatefulWidget {
@@ -57,7 +59,7 @@ class _RegisterState extends State<Register> {
     }
   }
 
-  void _register() {
+  Future<void> _register() async {
     if (_nameController.text.isEmpty ||
         _departmentController.text.isEmpty ||
         _emailController.text.isEmpty ||
@@ -86,16 +88,49 @@ class _RegisterState extends State<Register> {
       _isRegistering = true;
     });
 
-    // Simulate a registration process
-    Future.delayed(const Duration(seconds: 2), () {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: _emailController.text, password: _passwordController.text);
+
+      DatabaseReference userRef = FirebaseDatabase.instance
+          .reference()
+          .child('users')
+          .child(userCredential.user!.uid);
+
+      await userRef.set({
+        'name': _nameController.text,
+        'department': _departmentController.text,
+        'email': _emailController.text,
+      });
+
       setState(() {
         _isRegistering = false;
       });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Registered successfully')),
       );
+
       Navigator.pop(context);
-    });
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _isRegistering = false;
+      });
+
+      String message;
+      if (e.code == 'email-already-in-use') {
+        message = 'The email address is already in use.';
+      } else if (e.code == 'weak-password') {
+        message = 'Password should be at least 6 characters!';
+      } else {
+        message = 'Registration failed. Please try again.';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
   }
 
   @override
@@ -196,7 +231,7 @@ class _RegisterState extends State<Register> {
                   _buildTextField(
                       'Enter your Department', _departmentController),
                   SizedBox(height: screenWidth * 0.05),
-                  _buildTextField('Enter yourEmail', _emailController),
+                  _buildTextField('Enter your Email', _emailController),
                   SizedBox(height: screenWidth * 0.05),
                   _buildPasswordField(
                       'Enter your Password', _passwordController),

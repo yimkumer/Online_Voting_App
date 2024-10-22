@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "187022405544",
+    "firebase_url": "https://sju-voting-app-default-rtdb.firebaseio.com",
+    "project_id": "sju-voting-app",
+    "storage_bucket": "sju-voting-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:187022405544:android:12c9df214fb9bce3c2b79d",
+        "android_client_info": {
+          "package_name": "com.example.online_voting_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgU1JWnCB8MUZIwvYQYKkla5d3rvhSDMY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:187022405544:android:f2eb70cdf6b2b09dc2b79d",
+        "android_client_info": {
+          "package_name": "com.example.yourapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgU1JWnCB8MUZIwvYQYKkla5d3rvhSDMY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
