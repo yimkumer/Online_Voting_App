@@ -94,7 +94,7 @@ class _RegisterState extends State<Register> {
               email: _emailController.text, password: _passwordController.text);
 
       DatabaseReference userRef = FirebaseDatabase.instance
-          .reference()
+          .ref()
           .child('users')
           .child(userCredential.user!.uid);
 

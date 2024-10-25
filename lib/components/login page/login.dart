@@ -41,33 +41,47 @@ class _LoginPageState extends State<Login> {
       return;
     }
 
-    try {
-      // Send password reset email to check if email exists
-      // This is a workaround since Firebase doesn't provide a direct way to check email existence
-      await FirebaseAuth.instance
-          .sendPasswordResetEmail(
-        email: username,
-      )
-          .then((_) {
-        // If we reach here, the email exists
-        if (username == 'admin@gmail.com') {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const Admin()),
-          );
-        } else {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => VoterWalkthrough()),
-          );
-        }
+    if (password != 'password') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Incorrect password'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      setState(() {
+        _isLoading = false;
       });
+      return;
+    }
+
+    try {
+      // Authenticate the user
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: username,
+        password: password,
+      );
+
+      // If we reach here, the email exists and password is correct
+      if (username == 'admin@gmail.com') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const Admin()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => VoterWalkthrough()),
+        );
+      }
     } on FirebaseAuthException catch (e) {
       String message;
       if (e.code == 'user-not-found') {
         message = 'No user found for that email.';
+      } else if (e.code == 'wrong-password') {
+        message = 'Wrong password provided.';
       } else if (e.code == 'invalid-email') {
         message = 'The email address is badly formatted.';
       } else {
-        message = 'An error occurred. Please try again.';
+        message = 'This email is not registered';
       }
 
       if (!mounted) return;
