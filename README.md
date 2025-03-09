@@ -1,3 +1,3 @@
-# online_voting_app
+# Online_Voting_App
 
-A new Flutter project.
+An Online Voting app for conducting Student Council Elections within Colleges and Universities
